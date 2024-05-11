@@ -40,7 +40,6 @@ public class ServerThread extends Thread {
         
         while (isRunning) {
             try {
-                // removed while loop 
                 String input = streamIn.readLine(); 
                 System.out.println("Received message: " + input); 
                 server.handle(ID, input); 

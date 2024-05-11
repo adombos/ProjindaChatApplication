@@ -59,11 +59,23 @@ public class Server implements Runnable {
 
     // Sends the message to the clients
     public synchronized void handle(int ID, String input) throws IOException {
+        int IDClosingThread = ID; 
+        String lowerCaseMsg = input.toLowerCase(); 
+        if (lowerCaseMsg.equals("exit")) {
+            for (int i = 0; i < clientCount;  i++) {
+                clients[searchClient(ID)].send("exit"); 
+                remove(ID);
+                for (int j = 0; j < clientCount;  j++) {
+                    clients[j].send(String.format("Friend %d left the conversation", IDClosingThread)); 
+                }
+            } 
+        } else {
             for (int i = 0; i < clientCount;  i++) {
                 if (clients[i].getID() != ID) {
-                    clients[i].send(String.format("<%d> %s",ID, input)); 
+                    clients[i].send(String.format("Friend %d: %s",ID, input)); 
                 }
             }    
+        }
     }
 
     // Removing client

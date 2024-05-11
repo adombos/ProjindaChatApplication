@@ -56,7 +56,9 @@ public class Client extends JFrame implements Runnable, ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        sendMessage(); 
+        if (e.getSource() instanceof JTextField) {
+            sendMessage();
+        }
     }
 
     public void sendMessage() {
@@ -94,13 +96,14 @@ public class Client extends JFrame implements Runnable, ActionListener {
     }
 
     public void handle(String msg) {
-        if (msg == null) {
-            System.out.print("Message is null"); 
-            stop(); 
+        String lowerCaseMsg = msg.toLowerCase();
+        if (lowerCaseMsg == null) {
+            System.out.println(""); 
+        } else if (lowerCaseMsg.equals("exit")) {
+            setVisible(false); 
+            dispose();
         } else {
             displayArea.append(msg + "\n");
-            System.out.println(msg); //Print msg to the terminal 
-
         }
     }
 
