@@ -6,7 +6,7 @@ public class Server implements Runnable {
     private Thread thread = null; 
     private ServerThread clients[] = new ServerThread[10]; 
     private int clientCount = 0;  
-    private volatile boolean isRunning = true; 
+    private volatile boolean isRunning = true;
 
     public Server(int port) {
         try {
@@ -19,13 +19,14 @@ public class Server implements Runnable {
         }
     }
 
+    // Connects client to server 
     public void run() {
         while (isRunning) {
             try {
-                System.out.println("Waiting for a client..."); 
+                System.out.println("Waiting for client..."); 
                 addThread(server.accept()); 
             } catch (IOException ioe) {
-                System.out.println("Error when connecting client: " + ioe.getMessage());
+                System.out.println("Error when accepting socket: " + ioe.getMessage());
                 stopServer();   
             }
         }
@@ -43,7 +44,7 @@ public class Server implements Runnable {
         try {
             server.close(); 
         } catch (IOException ioe) {
-            System.out.println("Error closing server socket"); 
+            System.out.println("Error when closing server socket"); 
         }
     }
 
@@ -56,18 +57,16 @@ public class Server implements Runnable {
         return -1; 
     }
 
-    public synchronized void handle(int ID, String input) {
-        if (input.equals(".exit")) {
-            clients[searchClient(ID)].send(".exit"); 
-            remove(ID); 
-        } else {
-            // could add if the client ID is not that of the sender then we send 
+    // Sends the message to the clients
+    public synchronized void handle(int ID, String input) throws IOException {
             for (int i = 0; i < clientCount;  i++) {
-                clients[i].send(input); 
-            }
-        }
+                if (clients[i].getID() != ID) {
+                    clients[i].send(String.format("<%d> %s",ID, input)); 
+                }
+            }    
     }
 
+    // Removing client
     public synchronized void remove(int ID) {
         int pos = searchClient(ID); 
         if (pos >= 0) {
@@ -75,7 +74,7 @@ public class Server implements Runnable {
             System.out.println("Removing client thread " + clients[pos]); 
 
             if (pos < clientCount-1) {
-                for (int i = pos+1; i > clientCount; i++) {
+                for (int i = pos+1; i < clientCount; i++) {
                     clients[i-1] = clients[i];
                 }
             }
@@ -98,10 +97,10 @@ public class Server implements Runnable {
                 clients[clientCount].start(); 
                 clientCount++; 
             } catch (IOException ioe) {
-                System.out.println("Error starting new thread"); 
+                System.out.println("Error when starting new thread"); 
             }
         } else {
-            System.out.println("Maximum number of clients reach"); 
+            System.out.println("Could not add client - maximum number of clients reached"); 
         }
     }
 

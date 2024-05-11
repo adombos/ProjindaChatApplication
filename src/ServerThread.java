@@ -16,13 +16,15 @@ public class ServerThread extends Thread {
         ID = socket.getPort(); 
     }
 
+    // Sends message to the output stream 
     public void send(String msg) {
         try {
             streamOut.write(msg); 
+            streamOut.newLine(); 
             streamOut.flush(); 
             System.out.println("Successfully sent message: " + msg); 
         } catch (IOException ioe) {
-            System.out.println("Error sending msg"); 
+            System.out.println("Error when sending message"); 
             server.remove(ID); 
             stopThread(); 
         }
@@ -32,17 +34,18 @@ public class ServerThread extends Thread {
         return ID; 
     }
 
+    // Read message from the input stream 
     public void run() {
         System.out.println(String.format("Server thread %d is currently running", ID)); 
+        
         while (isRunning) {
             try {
-                String input; 
-                while ((input = streamIn.readLine()) != null) {
-                    System.out.println("Received message: " + input); 
-                    server.handle(ID, input); 
-                }
+                // removed while loop 
+                String input = streamIn.readLine(); 
+                System.out.println("Received message: " + input); 
+                server.handle(ID, input); 
             } catch (IOException ioe) {
-                System.out.println("Error reading message"); 
+                System.out.println("Error when reading message"); 
                 server.remove(ID);
                 stopThread(); 
             }

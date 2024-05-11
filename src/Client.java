@@ -1,16 +1,48 @@
 import java.net.*; 
 import java.io.*; 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
-public class Client implements Runnable {
+public class Client extends JFrame implements Runnable, ActionListener {
     private Socket socket = null; 
     private Thread thread = null; 
     private BufferedReader console = null; 
     private BufferedWriter streamOut = null; 
     private ClientThread client = null; 
     private volatile boolean isRunning = true; 
+    private JTextField inputField;
+    private JTextArea displayArea;
 
     public Client (String serverName, int serverPort) {
         System.out.println("Connecting..."); 
+        setTitle("Chat Client"); 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);    
+        setSize(400, 400); 
+        setLayout(new BorderLayout());
+
+        JPanel panel = new JPanel(); 
+        panel.setLayout(new BorderLayout());
+
+        // Add input field 
+        inputField = new JTextField(); 
+        inputField.addActionListener(this);
+        panel.add(inputField, BorderLayout.CENTER); 
+
+        // Add send button 
+        JButton sendButton = new JButton("Send"); 
+        sendButton.addActionListener(this);
+        panel.add(sendButton, BorderLayout.EAST); 
+
+        add(panel, BorderLayout.SOUTH); 
+
+        displayArea = new JTextArea(); 
+        displayArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(displayArea); 
+        add(scrollPane, BorderLayout.CENTER);
+
+        setVisible(true);
+
         try { 
             socket = new Socket(serverName, serverPort); 
             System.out.println("Connected: " + socket);
@@ -23,26 +55,52 @@ public class Client implements Runnable {
         }
     }
 
+    public void actionPerformed(ActionEvent e) {
+        sendMessage(); 
+    }
+
+    public void sendMessage() {
+        String message = inputField.getText().trim(); 
+        if (!message.isEmpty()) {
+            try {
+                streamOut.write(message);
+                streamOut.newLine();
+                streamOut.flush();
+                displayArea.append("You: " + message + "\n");
+                inputField.setText("");
+            } catch (IOException ioe) {
+                System.out.println("Error sending message: " + ioe.getMessage()); 
+            }
+        }
+    }
+
     public void run() {
         while (isRunning) {
             try {
                 String input = console.readLine();
-                streamOut.write(input);
-                streamOut.flush();
-                System.out.println("Message sent..."); //printed in terminal of sender client 
+                if (input != null) {
+                    streamOut.write(input);
+                    streamOut.newLine(); 
+                    streamOut.flush();
+                    System.out.println("Message sent...");
+                } else {
+                    stop(); 
+                }
             } catch (IOException ioe) {
-                System.out.println("Error when sending: " + ioe.getMessage());
+                System.out.println("Error when sending message: " + ioe.getMessage());
                 stop();
             }
         }
     }
 
     public void handle(String msg) {
-        if (msg.equals(".exit")) {
-            System.out.println("print enter to exit"); 
+        if (msg == null) {
+            System.out.print("Message is null"); 
             stop(); 
         } else {
-            System.out.println(msg); 
+            displayArea.append(msg + "\n");
+            System.out.println(msg); //Print msg to the terminal 
+
         }
     }
 
@@ -57,7 +115,7 @@ public class Client implements Runnable {
                 thread.start(); 
             }
         } catch (IOException ioe) {
-            System.out.println("Error occurred while starting the client: " + ioe.getMessage()); 
+            System.out.println("Error when starting client: " + ioe.getMessage()); 
             stop(); 
         }
     }
@@ -75,14 +133,14 @@ public class Client implements Runnable {
                 socket.close(); 
             }
         } catch (IOException ioe) {
-            System.out.println("Error: " + ioe.getMessage());
+            System.out.println("Error when closing: " + ioe.getMessage());
         }
     }
 
     public static void main(String args[]) {
         Client client = null; 
         if (args.length != 2) {
-            System.out.println("Please provide only server name and port number.");
+            System.out.println("Please provide server name and port number.");
         } else {
             client = new Client(args[0], Integer.parseInt(args[1])); 
         }   
