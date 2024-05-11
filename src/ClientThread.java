@@ -18,7 +18,7 @@ public class ClientThread extends Thread {
         try {
             streamIn = new BufferedReader(new InputStreamReader(socket.getInputStream())); 
         } catch (IOException ioe) {
-            System.out.println("Error when opening input stream"); 
+            System.out.println("Error when opening input stream: " + ioe.getMessage()); 
             client.stop(); 
         }
     }
@@ -29,19 +29,17 @@ public class ClientThread extends Thread {
                 streamIn.close(); 
             } 
         } catch (IOException ioe) {
-            System.out.println("Error when closing stream");
+            System.out.println("Error when closing stream: " + ioe.getMessage());
         }
     }
 
-
     public void run() {
-        while(true) {
+        while (true) {
             try { 
                 String input = streamIn.readLine(); 
-                System.out.println("The send method seems to work"); 
-                client.handle(input); // does not seem to work 
+                client.handle(input); 
             } catch (IOException ioe) {
-                System.out.println("Reading error");
+                System.out.println("Error when reading message: " + ioe.getMessage());
                 client.stop(); 
             }
         }
