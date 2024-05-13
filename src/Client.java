@@ -4,6 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * The Client class represents a client-side application for a chat program. It extends
+ * JFrame to create a GUI for sending and receiving messages.
+ * It implements the Runnable interface to support multi-threading, allowing for concurrent
+ * reading and sending of messages. Additionally, it implements the ActionListener interface
+ * to handle user actions such as sending messages via the input field.
+ */
 public class Client extends JFrame implements Runnable, ActionListener {
     private Socket socket = null; 
     private Thread thread = null; 
