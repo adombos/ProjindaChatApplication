@@ -24,7 +24,13 @@ public class Server implements Runnable {
         while (isRunning) {
             try {
                 System.out.println("Waiting for client..."); 
-                addThread(server.accept()); 
+                Socket socket = server.accept(); 
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String username = reader.readLine();
+
+                addThread(socket, username); 
+
             } catch (IOException ioe) {
                 System.out.println("Error when accepting socket: " + ioe.getMessage());
                 stopServer();   
@@ -59,20 +65,20 @@ public class Server implements Runnable {
 
     // Sends the message to the clients
     public synchronized void handle(int ID, String input) throws IOException {
-        int IDClosingThread = ID; 
+        String username = clients[searchClient(ID)].getUsername(); 
         String lowerCaseMsg = input.toLowerCase(); 
         if (lowerCaseMsg.equals("exit")) {
             for (int i = 0; i < clientCount;  i++) {
                 clients[searchClient(ID)].send("exit"); 
                 remove(ID);
                 for (int j = 0; j < clientCount;  j++) {
-                    clients[j].send(String.format("Friend %d left the conversation", IDClosingThread)); 
+                    clients[j].send(String.format("%s left the conversation", username)); 
                 }
             } 
         } else {
             for (int i = 0; i < clientCount;  i++) {
                 if (clients[i].getID() != ID) {
-                    clients[i].send(String.format("Friend %d: %s",ID, input)); 
+                    clients[i].send(String.format("%s: %s",username, input)); 
                 }
             }    
         }
@@ -100,10 +106,10 @@ public class Server implements Runnable {
         }
     }
 
-    private void addThread(Socket socket) {
+    private void addThread(Socket socket, String username) {
         if (clientCount < clients.length) {
             System.out.println("Client accepted " + socket); 
-            clients[clientCount] = new ServerThread(this, socket); 
+            clients[clientCount] = new ServerThread(this, socket, username); 
             try {
                 clients[clientCount].open(); 
                 clients[clientCount].start(); 

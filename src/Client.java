@@ -13,13 +13,16 @@ public class Client extends JFrame implements Runnable, ActionListener {
     private volatile boolean isRunning = true; 
     private JTextField inputField;
     private JTextArea displayArea;
+    private String username; 
 
     public Client (String serverName, int serverPort) {
         System.out.println("Connecting..."); 
-        setTitle("Chat Client"); 
+        setTitle("Chat"); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);    
         setSize(400, 400); 
         setLayout(new BorderLayout());
+
+        getUsername(); 
 
         JPanel panel = new JPanel(); 
         panel.setLayout(new BorderLayout());
@@ -48,6 +51,9 @@ public class Client extends JFrame implements Runnable, ActionListener {
             System.out.println("Connected: " + socket);
             start();  
 
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true); 
+            out.println(username);
+
         } catch (UnknownHostException uhe) {
             System.out.println("Unknown host: " + uhe.getMessage()); 
         } catch (IOException ioe) {
@@ -73,6 +79,13 @@ public class Client extends JFrame implements Runnable, ActionListener {
             } catch (IOException ioe) {
                 System.out.println("Error sending message: " + ioe.getMessage()); 
             }
+        }
+    }
+
+    public void getUsername() {
+        username = JOptionPane.showInputDialog(this, "Enter a username: ");
+        if (username == null || username.trim().isEmpty()) {
+            getUsername(); 
         }
     }
 
