@@ -8,12 +8,14 @@ public class ServerThread extends Thread {
     private BufferedReader streamIn = null; 
     private BufferedWriter streamOut = null; 
     private boolean isRunning = true; 
+    private String username; 
 
-    public ServerThread(Server _server, Socket _socket) {
+    public ServerThread(Server _server, Socket _socket, String _username) {
         super(); 
         server = _server; 
         socket = _socket; 
         ID = socket.getPort(); 
+        username = _username; 
     }
 
     // Sends message to the output stream 
@@ -32,6 +34,10 @@ public class ServerThread extends Thread {
 
     public int getID() {
         return ID; 
+    }
+
+    public String getUsername() {
+        return username; 
     }
 
     // Read message from the input stream 
