@@ -1,7 +1,12 @@
 import java.net.*; 
 import java.io.*; 
 
-
+/**
+ * The ClientThread class represents a thread responsible for continuously reading messages
+ * from the server and passing them to the associated client object for handling. Each instance
+ * of ClientThread is associated with a single client and manages the communication between that
+ * client and the server.
+*/
 public class ClientThread extends Thread {
     private Socket socket = null; 
     private Client client = null; 
