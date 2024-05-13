@@ -1,6 +1,12 @@
 import java.net.*; 
 import java.io.*; 
 
+/**
+ * The Server class represents a multi-threaded server application for managing client connections
+ * and facilitating communication between multiple clients. It listens for incoming client connections
+ * on a specified port and creates a new ServerThread for each client connection. Each ServerThread
+ * handles communication with a specific client. 
+*/
 public class Server implements Runnable {
     private ServerSocket server = null; 
     private Thread thread = null; 
