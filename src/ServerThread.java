@@ -1,6 +1,12 @@
 import java.net.*; 
 import java.io.*; 
 
+/**
+ * The ServerThread class extends Thread and represents a thread that handles communication 
+ * with a specific client on the server side. Each ServerThread
+ * instance is associated with a single client connection and manages the sending and receiving
+ * of messages between the server and that client.
+ */
 public class ServerThread extends Thread {
     private Socket socket = null; 
     private Server server = null; 
